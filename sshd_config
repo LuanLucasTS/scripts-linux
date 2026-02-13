@@ -1,0 +1,20 @@
+# Segurança de Acesso
+Port 4422                   # Porta não padrão
+Protocol 2                  # Força o uso do protocolo moderno
+PermitRootLogin no          # Proíbe root
+MaxAuthTries 3              # Menos tentativas de erro
+AllowUsers seu_nome_aqui    # Apenas você entra
+
+# Autenticação
+PubkeyAuthentication yes    # Chaves são obrigatórias
+PasswordAuthentication no   # Senhas proibidas
+PermitEmptyPasswords no     # Sem senhas vazias
+
+# Timeouts (os que vimos antes)
+LoginGraceTime 30
+ClientAliveInterval 300
+ClientAliveCountMax 0
+
+# Restrições de Recursos
+X11Forwarding no
+MaxSessions 2
