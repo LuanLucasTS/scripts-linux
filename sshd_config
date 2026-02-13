@@ -1,20 +1,57 @@
-# Segurança de Acesso
-Port 4422                   # Porta não padrão
-Protocol 2                  # Força o uso do protocolo moderno
-PermitRootLogin no          # Proíbe root
-MaxAuthTries 3              # Menos tentativas de erro
-AllowUsers seu_nome_aqui    # Apenas você entra
+# ==========================================================
+# SSHD CONFIGURATION - PRODUÇÃO (HARDENED)
+# ==========================================================
 
-# Autenticação
-PubkeyAuthentication yes    # Chaves são obrigatórias
-PasswordAuthentication no   # Senhas proibidas
-PermitEmptyPasswords no     # Sem senhas vazias
+# 1. Conexão e Rede
+Port SUA_PORTA               # Considere mudar para uma porta alta (ex: 4422)
+Protocol 2                   #Protocolo mais novo 
+AddressFamily inet           # Força IPv4 (mude para 'any' se usar IPv6)
+ListenAddress 0.0.0.0        #Recebe conexões de qualquer endereço
 
-# Timeouts (os que vimos antes)
-LoginGraceTime 30
+# 2. Identidade do Servidor (Criptografia Moderna)
+# Desativamos o RSA legados em favor de curvas elípticas
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+
+# 3. Log e Auditoria
+SyslogFacility AUTHPRIV
+LogLevel INFO
+
+# 4. Autenticação e Controle de Acesso
+LoginGraceTime 30            # 30 segundos para se autenticar
+PermitRootLogin no           # PROIBIDO login como root
+StrictModes yes              # Verifica permissões de pastas/arquivos
+MaxAuthTries 3               # Limite baixo de tentativas de erro
+MaxSessions 2                # Limita multiplexação desnecessária
+
+# --- A parte mais importante: APENAS CHAVES ---
+PubkeyAuthentication yes
+AuthorizedKeysFile .ssh/authorized_keys
+PasswordAuthentication no    # PROIBIDO usar senhas
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+# ----------------------------------------------
+
+# 5. Integração e Limpeza
+UsePAM yes                   # Mantém integração com o sistema
+GSSAPIAuthentication no      # Desativado para acelerar o login
+GSSAPICleanupCredentials yes
+
+# 6. Timeouts de Inatividade (Auto-Logout)
+# Encerra a sessão após 5 minutos de inatividade total
 ClientAliveInterval 300
 ClientAliveCountMax 0
 
-# Restrições de Recursos
-X11Forwarding no
-MaxSessions 2
+# 7. Restrições de Recursos (Hardening)
+AllowAgentForwarding no
+AllowTcpForwarding no        # Desative se não faz túneis SSH
+X11Forwarding no             # Sem interface gráfica remota
+PrintMotd no                 # Reduz informações do sistema no login
+PrintLastLog yes
+TCPKeepAlive no              # Melhora segurança contra spoofing
+
+# 8. Usuários Permitidos
+AllowUsers SEU_USARIO
+
+# 9. Transferência de Arquivos
+Subsystem sftp /usr/lib/ssh/sftp-server
