@@ -1,0 +1,17 @@
+[Unit]
+Description=Speedtest Script
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/sistemas/scripts
+ExecStart=/usr/bin/python3 -u /sistemas/scripts/speed-test.py
+
+# segurança e estabilidade
+Nice=10
+TimeoutStartSec=5min
+
+StandardOutput=journal
+StandardError=journal
